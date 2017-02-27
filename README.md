@@ -1,8 +1,8 @@
-### PracticasEC
+# PracticasEC
 
 Members: 
-# Carlos Lozano
-# Pablo Mac-Veigh
+### Carlos Lozano
+### Pablo Mac-Veigh
 
 We're doing our Computer Structure assignments.
 
