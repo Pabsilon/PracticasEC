@@ -18,13 +18,13 @@
 #include "trafo.h"
 #include "types.h"
 #include "imgarm.h"
-extern unsigned char rgb2gray(pixelRGB* pixel);
+//extern unsigned char rgb2gray(pixelRGB* pixel);
 // COMPLETAR LAS FUNCIONES MARCADAS
 
 unsigned char rgb2gray(pixelRGB* pixel)
 {
 	
-	return ((3483*pixel.R + 11718*pixel.G + 1183*pixel.B)/16384);
+	return ((3483*pixel->R + 11718*pixel->G + 1183*pixel->B)/16384);
 }
 
 int RGB2GrayMatrix(pixelRGB orig[], unsigned char dest[], int nfilas, int ncols) {

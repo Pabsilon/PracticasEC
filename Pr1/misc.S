@@ -5,80 +5,171 @@
 
 	.text
 
-
-	.global rgb2gray
+	.global MediaGris
+	//.global rgb2gray
 	.global div16384
 
 rgb2gray:
+	PUSH {R4-R10,LR}
+
+	MOV R10,#0
+	LDRB R1,[R0]
+	LDRB R2,[R0,R10,LSL#1]
+	LDRB R3,[R0,R10,LSL#2]
+
+	LDR R4,=COEF1
+	LDR R5,=COEF2
+	LDR R6,=COEF3
+
+	MUL R7,R1,R4
+
+	MUL R8,R2,R5
+
+	MUL R9,R3,R6
+
+	ADD R0,R7,R8
+	ADD R0,R0,R9
+
+	BL div16384
+
+	POP {R4-R10,LR}
 	
-	MUL R2,R0,COEF1
-	ADDI R0,R0,#1
-	MUL R3,R0,COEF2
-	ADD R2,R3,R2
-	ADDI R0,R0,#1
-	MUL R3,R0,COEF3
-	ADD R2,R3,R2
-	DESPLR R2,#15
-	MOV R0,R2
 	MOV PC,LR
 
+
+div16384:
+			MOV R2,#0
+
+while:		CMP R0,#16384
+			BLT fin_while
+
+			SUB R0,R0,#16384
+			ADD R2,R2,#1
+
+			B while
+
+fin_while:	MOV R0,R2
+
+			MOV PC,LR
+
+
 apply_gaussian:
-	SUB SP,SP,#24
-	STR R4,[SP,#0]
-	STR R5,[SP,#4]
-	STR R6,[SP,#8]
-	STR R7,[SP,#12]
-	STR R8,[SP,#16]
-	STR LR,[SP,#20]
-	ADD FP,SP,#12
+	PUSH {R4-R7,LR}
 
+	MOV R4,#0
 
-	MOV R4,#0	
-fr1:
-	CMP R4,R2
+for_1:
+	CMP R4,R3
 	BGE fin_for_1
+
 	MOV R5,#0
-fr2:
-	CMP R5,R3
+
+for_2:
+	CMP R5,R2
 	BGE fin_for_2
-	MUL R6,R4,#4
-	MUL R7,R5,#4
-	MUL R8,R7,R2		
-	ADD R6,R7,R8
+
+	MUL R7,R4,R2
+	ADD R7,R7,R5
+
 	PUSH {R0-R3}
-	PUSH {R4-R5}
+
 	MOV R1,R2
 	MOV R2,R3
 	MOV R3,R4
-	MOV R4,R5
-	
+
+	PUSH {R5}
+
 	BL gaussian
+	MOV R6,R0
 
-	MOV R8,R0
-	POP {RO-R3}
-	POP {R4-R5}
+	ADD SP,SP,#4
 
-	MOV [R2,R6],R8
+	POP {R0-R3}
+
+	STRB R6,[R1,R7]
 
 	ADD R5,R5,#1
-	B fr2
+	B for_2
+fin_for_2:
 
-
+	ADD R4,R4,#1
+	MOV R5,#0
+	B for_1
 
 fin_for_1:
-	LDR LR,[SP,#20]
-	LDR R8,[SP,#16]
-	LDR R7,[SP,#12]
-	LDR R6,[SP,#8]
-	LDR R5,[SP,#4]
-	LDR R4,[SP,#0]
-	ADD SP,SP,#24
+		POP {R4-R7,LR}
+		MOV PC,LR
+
+
+MediaGris:
+
+	PUSH {R4-R8,LR}
+
+	//r0 array gris
+	//r1 N
+	//r2 M
+	//r3 Array a actualizar
+
+	//aux = 0
+	//For1 i = 0; i<m, i++
+	//for2 j=0;j<N, j++
+
+	//aux = aux + gris[]
+	//fin for1
+	//aux = aux / m
+
+	MOV R8, #0 //DESP
+	MOV R4, #0 //I
+for1:
+	CMP R4,R1
+	BGE fin1
+
+	MOV R5, #0 //J
+	MOV R6, #0 //AUX
+for2:
+	CMP R5,R2
+	BGE fin2
+
+	ADD R8,R8,#1
+	LDRB R7,[R0,R8]
+	ADD R6,R6,R7
+
+	ADD R5,R5,#1
+
+	B for2
+
+fin2://R7,R5
+
+
+	STR R3,[R6]
+	ADD R3,R3,#1
+	ADD R4,R4,#1
+
+	B for1
+
+fin1:
+	SUB R3,R3,R4
+	POP {R4-R8,LR}
 	MOV PC,LR
 
-fin_for_2:
-	ADD R4,R4,#1
-	B fr1
 
-  		.end
+div512:
+			MOV R5,#0
+
+while512:
+			CMP R6,#512
+			BLT fin_while512
+
+			SUB R6,R6,#512
+			ADD R5,R5,#1
+
+			B while512
+
+fin_while512:
+			MOV R6,R5
+
+			MOV PC,LR
 
 
+
+	.end

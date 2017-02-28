@@ -3,7 +3,6 @@
 #include "types.h"
 #include "time.h"
 #include "lena512color.h"
-
 // Comentar esta linea para NO usar como entrada
 // la imagen de LENA
 #define LENA
@@ -21,6 +20,7 @@ pixelRGB imagenRGB[N*M];
 unsigned char imagenGris[N*M];
 unsigned char imagenGauss[N*M];
 unsigned char imagenSobel[N*M];
+unsigned char imagenMedia[N];
 
 #ifndef LENA
 void initRGB(int nfilas, int ncols)
@@ -43,14 +43,23 @@ void initRGB(int nfilas, int ncols)
 
 
 int main() {
+
+
 	short int time = 0;
 	int i;
     timer_init();
     initRGB(N,M);
     timer_start();
     i = RGB2GrayMatrix(imagenRGB, imagenGris,N,M);
+
+    MediaGris(imagenGris,N,M,imagenMedia);
+
     apply_gaussian(imagenGris, imagenGauss, N, M);
     apply_sobel(imagenGauss, imagenSobel, N, M);
+
+
     time = timer_stop();
     return 0;
 }
+
+extern void MediaGris(unsigned char[N*M], int ,int, unsigned char[N]);
